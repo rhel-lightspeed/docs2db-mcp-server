@@ -3,8 +3,7 @@
 import logging
 from typing import Optional
 
-from docs2db_api.config import DatabaseConfig, RAGConfig
-from docs2db_api.rag.engine import UniversalRAGEngine
+from docs2db_api.rag.engine import RAGConfig, UniversalRAGEngine
 
 from docs2db_mcp.config import CONFIG
 
@@ -27,27 +26,26 @@ async def get_engine() -> UniversalRAGEngine:
     if _engine is None:
         logger.info("Initializing UniversalRAGEngine")
 
-        # Configure database
-        db_config = DatabaseConfig(
-            host=CONFIG.db_host,
-            port=CONFIG.db_port,
-            database=CONFIG.db_database,
-            user=CONFIG.db_user,
-            password=CONFIG.db_password,
-        )
+        # Configure database connection (dict format)
+        db_config = {
+            "host": CONFIG.db_host,
+            "port": str(CONFIG.db_port),
+            "database": CONFIG.db_database,
+            "user": CONFIG.db_user,
+            "password": CONFIG.db_password,
+        }
 
         # Configure RAG (no LLM config - refinement disabled)
-        rag_config = RAGConfig(
-            similarity_threshold=CONFIG.rag_similarity_threshold,
-            max_chunks=CONFIG.rag_max_chunks,
-            enable_reranking=CONFIG.rag_enable_reranking,
-            enable_question_refinement=False,  # Disabled for tool calling
-        )
+        rag_config = RAGConfig()
+        rag_config.similarity_threshold = CONFIG.rag_similarity_threshold
+        rag_config.max_chunks = CONFIG.rag_max_chunks
+        rag_config.enable_reranking = CONFIG.rag_enable_reranking
+        rag_config.enable_question_refinement = False  # Disabled for tool calling
 
         # Create and initialize engine
         _engine = UniversalRAGEngine(
+            config=rag_config,
             db_config=db_config,
-            rag_config=rag_config,
         )
 
         try:
@@ -67,5 +65,6 @@ async def shutdown_engine() -> None:
 
     if _engine is not None:
         logger.info("Shutting down UniversalRAGEngine")
-        await _engine.stop()
+        # UniversalRAGEngine doesn't have a stop() method
+        # Just set to None to allow garbage collection
         _engine = None

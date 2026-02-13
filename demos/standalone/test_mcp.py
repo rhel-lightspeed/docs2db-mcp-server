@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Standalone test script for docs2db MCP server.
 
-This script tests the MCP server by directly invoking the search_documents tool.
+This script tests the MCP server by directly invoking the search_documents tool function.
 Requires a running PostgreSQL database with docs2db RAG data.
 """
 
@@ -12,7 +12,8 @@ import sys
 # Add src to path for local development
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from docs2db_mcp.tools.search_documents import search_documents
+# Import the engine directly instead of the decorated tool
+from docs2db_mcp.engine import get_engine
 
 
 async def main() -> None:
@@ -40,26 +41,25 @@ async def main() -> None:
         print("-" * 80)
 
         try:
-            result = await search_documents(
+            # Get the RAG engine and search directly
+            engine = await get_engine()
+            rag_result = await engine.search_documents(
                 query=query,
                 max_chunks=3,
                 similarity_threshold=0.7,
+                enable_reranking=True,
             )
 
-            if "error" in result:
-                print(f"❌ Error: {result['error']}")
-                continue
-
-            num_results = result.get("num_results", 0)
+            num_results = len(rag_result.documents)
             print(f"✅ Found {num_results} results\n")
 
-            for j, chunk in enumerate(result.get("chunks", []), 1):
+            for j, doc in enumerate(rag_result.documents, 1):
                 print(f"  Result {j}:")
-                print(f"    Similarity: {chunk['similarity']:.3f}")
-                print(f"    Source: {chunk['source']}")
-                print(f"    Text: {chunk['text'][:200]}...")
-                if chunk.get("contextual_text"):
-                    print(f"    Context: {chunk['contextual_text'][:150]}...")
+                print(f"    Similarity: {doc['similarity_score']:.3f}")
+                print(f"    Source: {doc['document_path']}")
+                print(f"    Text: {doc['text'][:200]}...")
+                if doc.get('metadata', {}).get('headings'):
+                    print(f"    Headings: {', '.join(doc['metadata']['headings'])}")
                 print()
 
         except Exception as e:

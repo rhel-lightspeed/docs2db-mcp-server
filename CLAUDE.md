@@ -4,7 +4,7 @@
 docs2db-mcp-server is an MCP (Model Context Protocol) server that exposes docs2db-api's RAG engine as tools for AI assistants. It provides semantic and hybrid search capabilities for RHEL documentation.
 
 ## Development Environment
-- **Python**: >=3.10 (check `pyproject.toml` for supported versions)
+- **Python**: >=3.12 (required by docs2db-api dependency)
 - **Package Manager**: **uv** (required - do NOT use pip)
 - **Required Commands**:
   - `uv sync` - Install dependencies

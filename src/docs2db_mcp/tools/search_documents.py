@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from fastmcp import ToolAnnotations
+from mcp.types import ToolAnnotations
 
 from docs2db_mcp.engine import get_engine
 from docs2db_mcp.server import mcp
@@ -54,13 +54,15 @@ async def search_documents(
         # Format results for MCP response
         chunks = [
             {
-                "text": chunk.text,
-                "contextual_text": chunk.contextual_text or "",
-                "similarity": float(chunk.similarity) if chunk.similarity else 0.0,
-                "source": chunk.source_file or "unknown",
-                "metadata": chunk.metadata or {},
+                "text": doc["text"],
+                "similarity": float(doc.get("similarity_score", 0.0)),
+                "source": doc.get("document_path", "unknown"),
+                "metadata": doc.get("metadata", {}),
+                "chunk_index": doc.get("chunk_index"),
+                "vector_similarity": doc.get("vector_similarity"),
+                "rerank_score": doc.get("rerank_score"),
             }
-            for chunk in result.chunks
+            for doc in result.documents
         ]
 
         logger.info(f"Found {len(chunks)} results")
