@@ -68,3 +68,37 @@ async def shutdown_engine() -> None:
         # UniversalRAGEngine doesn't have a stop() method
         # Just set to None to allow garbage collection
         _engine = None
+
+
+async def health_check() -> None:
+    """Perform startup health check to verify database connectivity and functionality.
+
+    Raises:
+        Exception: If health check fails (database unreachable, query fails, etc.)
+    """
+    logger.info("Performing startup health check...")
+
+    try:
+        # Initialize engine and connect to database
+        engine = await get_engine()
+        logger.info("Database connection established")
+
+        # Perform a simple test query to verify the system works
+        test_query = "test"
+        result = await engine.search_documents(
+            query=test_query,
+            max_chunks=1,
+            similarity_threshold=0.0,
+            enable_reranking=False,
+        )
+
+        # Verify we got a valid response
+        if result is None:
+            raise Exception("Health check query returned None")
+
+        logger.info(f"Test query successful (returned {len(result.documents)} documents)")
+        logger.info("Health check passed - system is ready")
+
+    except Exception as e:
+        logger.error(f"Health check failed: {e}", exc_info=True)
+        raise Exception(f"Startup health check failed - cannot connect to database or perform queries: {e}") from e

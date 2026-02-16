@@ -5,7 +5,7 @@ import logging
 import sys
 
 from docs2db_mcp.config import CONFIG
-from docs2db_mcp.engine import shutdown_engine
+from docs2db_mcp.engine import health_check, shutdown_engine
 from docs2db_mcp.server import mcp
 
 # Configure logging
@@ -32,6 +32,14 @@ def main() -> None:
     logger.info(f"RAG settings: threshold={CONFIG.rag_similarity_threshold}, "
                 f"max_chunks={CONFIG.rag_max_chunks}, "
                 f"reranking={CONFIG.rag_enable_reranking}")
+
+    # Perform startup health check
+    try:
+        asyncio.run(health_check())
+    except Exception as e:
+        logger.error(f"Startup health check failed: {e}")
+        logger.error("Server will not start - please check database connection and configuration")
+        sys.exit(1)
 
     try:
         # Run the MCP server
