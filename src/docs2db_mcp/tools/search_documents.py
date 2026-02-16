@@ -13,8 +13,14 @@ logger = logging.getLogger(__name__)
 
 @mcp.tool(
     description=(
-        "Search RHEL documentation using hybrid search (vector + BM25). "
-        "Returns relevant documentation chunks with similarity scores and source information."
+        "Search official RHEL product documentation and release notes. "
+        "This is the PRIMARY source for RHEL-specific information. "
+        "Use this for:\n"
+        "- RHEL version-specific features (RHEL 9, RHEL 10, etc.)\n"
+        "- New features and changes in RHEL releases\n"
+        "- Official product documentation and configuration guides\n"
+        "- Release notes, package updates, and technical procedures\n"
+        "Returns official documentation with exact version information."
     ),
     annotations=ToolAnnotations(readOnlyHint=True),
 )

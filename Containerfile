@@ -11,11 +11,11 @@ COPY pyproject.toml ./
 COPY README.md ./
 COPY LICENSE ./
 
+# Copy source (needed before install)
+COPY src/ ./src/
+
 # Install dependencies
 RUN uv pip install --system --no-cache .
-
-# Copy source
-COPY src/ ./src/
 
 # Final stage
 FROM python:3.12-slim AS final
