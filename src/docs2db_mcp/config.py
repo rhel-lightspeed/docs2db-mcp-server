@@ -83,6 +83,15 @@ class Config(BaseSettings):
             f"@{self.db_host}:{self.db_port}/{self.db_database}"
         )
 
+    @property
+    def transport_kwargs(self) -> dict:
+        """Return transport-specific keyword arguments for mcp.run()."""
+        kwargs = {}
+        if self.transport == "sse":
+            kwargs["host"] = self.host
+            kwargs["port"] = self.port
+        return kwargs
+
 
 # Global config instance
 CONFIG = Config()

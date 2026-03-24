@@ -43,11 +43,7 @@ def main() -> None:
 
     try:
         # Run the MCP server
-        mcp.run(
-            transport=CONFIG.transport,
-            host=CONFIG.host if CONFIG.transport == "sse" else None,
-            port=CONFIG.port if CONFIG.transport == "sse" else None,
-        )
+        mcp.run(transport=CONFIG.transport, **CONFIG.transport_kwargs)
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt")
     except Exception as e:
