@@ -2,20 +2,59 @@
 
 import asyncio
 import logging
+import os
 import sys
 
+# Must read transport before importing modules that configure logging
+transport = os.environ.get("DOCS2DB_MCP_TRANSPORT", "sse")
+
+if transport == "sse":
+    # stdout not used by MCP protocol, logging can go there
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        stream=sys.stderr,
+    )
+else:
+    # stdout is reserved for MCP protocol, must redirect all logging to stderr
+    # set CRITICAL level before importing docs2db-api to minimize startup logs
+    os.environ.setdefault("DOCS2DB_LOG_LEVEL", "CRITICAL")
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        stream=sys.stderr,
+    )
+
+# Import configuration (lightweight, doesn't trigger heavy imports)
 from docs2db_mcp.config import CONFIG
+
+logger = logging.getLogger(__name__)
+
+
+def _configure_structlog_for_stdio() -> None:
+    """Override docs2db-api's structlog configuration to redirect stdout to stderr.
+
+    docs2db-api configures structlog at import time to write to stdout, but stdio transport
+    requires stdout to be reserved exclusively for MCP protocol messages.
+    """
+    import structlog
+
+    # Reconfigure structlog to output to stderr instead of stdout
+    # Keep existing processors, just redirect the output stream
+    structlog.configure(
+        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        cache_logger_on_first_use=False,
+    )
+
+
+# Import server and engine modules
+# Must happen after reading transport to configure structlog before they import docs2db-api
 from docs2db_mcp.engine import health_check, shutdown_engine
 from docs2db_mcp.server import mcp
 
-# Configure logging
-logging.basicConfig(
-    level=getattr(logging, CONFIG.log_level.upper()),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    stream=sys.stderr,
-)
-
-logger = logging.getLogger(__name__)
+# docs2db-api has already configured structlog, now override for stdio transport
+if transport != "sse":
+    _configure_structlog_for_stdio()
 
 
 async def cleanup() -> None:
