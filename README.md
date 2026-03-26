@@ -79,7 +79,7 @@ registered_resources:
 
 ### Using with Goose
 
-Add to `~/.config/goose/profiles.yaml`:
+Add to `~/.config/goose/config.yaml`:
 
 ```yaml
 extensions:
@@ -88,7 +88,13 @@ extensions:
     type: stdio
     name: docs2db-rag
     cmd: uv
-    args: ["run", "python", "-m", "docs2db_mcp"]
+    args:
+    - run
+    - python
+    - -m
+    - docs2db_mcp
+    envs:
+      DOCS2DB_MCP_TRANSPORT: stdio
 ```
 
 ### Using with Claude Desktop
@@ -108,7 +114,9 @@ Add to `claude_desktop_config.json`:
 
 ## Configuration
 
-All configuration via environment variables with `DOCS2DB_MCP_` prefix:
+All configuration via environment variables with `DOCS2DB_MCP_` prefix.
+
+**Note**: For stdio transport, `DOCS2DB_LOG_LEVEL` is automatically set to `CRITICAL` to minimize startup logs. Set manually if needed.
 
 ### MCP Server Settings
 
@@ -118,6 +126,7 @@ All configuration via environment variables with `DOCS2DB_MCP_` prefix:
 | `DOCS2DB_MCP_HOST` | `0.0.0.0` | Bind address |
 | `DOCS2DB_MCP_PORT` | `8002` | Port number |
 | `DOCS2DB_MCP_LOG_LEVEL` | `INFO` | Logging level |
+| `DOCS2DB_MCP_SHOW_BANNER` | `true` | Show FastMCP banner (auto-suppressed for stdio) |
 
 ### Database Settings
 
