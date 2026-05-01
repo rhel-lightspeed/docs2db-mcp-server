@@ -34,6 +34,10 @@ class Config(BaseSettings):
         default="INFO",
         description="Logging level (DEBUG, INFO, WARNING, ERROR)",
     )
+    show_banner: bool = Field(
+        default=True,
+        description="Show FastMCP banner on startup. Must be False for stdio transport since stdout is reserved for MCP protocol.",
+    )
 
     # Database Settings
     db_host: str = Field(
@@ -90,6 +94,7 @@ class Config(BaseSettings):
         if self.transport == "sse":
             kwargs["host"] = self.host
             kwargs["port"] = self.port
+        kwargs["show_banner"] = self.show_banner and self.transport != "stdio"
         return kwargs
 
 
