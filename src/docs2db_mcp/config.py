@@ -1,5 +1,7 @@
 """Configuration management for docs2db MCP server."""
 
+from typing import Literal
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,9 +20,9 @@ class Config(BaseSettings):
     )
 
     # MCP Server Settings
-    transport: str = Field(
+    transport: Literal["stdio", "http", "sse", "streamable-http"] = Field(
         default="sse",
-        description="Transport type (sse or stdio)",
+        description="Transport type (stdio, http, sse, streamable-http)",
     )
     host: str = Field(
         default="0.0.0.0",  # noqa: S104 — intentional: server binds to all interfaces

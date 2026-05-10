@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "MCP server for docs2db-api RAG queries"
 readme = "README.md"
 license = {text = "Apache-2.0"}
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 authors = [
     {name = "RHEL Lightspeed Team", email = "rhel-lightspeed@redhat.com"}
 ]
@@ -38,20 +38,23 @@ dependencies = [
     "pydantic-settings >=2.12.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest >=8.0.0",
-    "pytest-asyncio >=0.23.0",
-    "ruff >=0.1.0",
-    "mypy >=1.8.0",
-]
-
 [project.urls]
 Homepage = "https://github.com/rhel-lightspeed/docs2db-mcp-server"
 Documentation = "https://github.com/rhel-lightspeed/docs2db-mcp-server#readme"
 Repository = "https://github.com/rhel-lightspeed/docs2db-mcp-server.git"
 Issues = "https://github.com/rhel-lightspeed/docs2db-mcp-server/issues"
 Changelog = "https://github.com/rhel-lightspeed/docs2db-mcp-server/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.0",
+    "pyright>=1.1.400",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=6.0.0",
+    "pytest-randomly>=3.16.0",
+    "ruff>=0.15.1",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -60,9 +63,16 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/docs2db_mcp"]
 
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "no_ci: tests requiring external services (excluded from make test-ci)",
+]
 
 [tool.ruff]
 target-version = "py312"
@@ -74,11 +84,4 @@ select = ["E", "F", "W", "I", "UP", "S", "B", "A", "C4", "SIM", "TID252"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S104"]
 "demos/**" = ["S101"]
-
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-
 
