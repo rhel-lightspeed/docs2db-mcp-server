@@ -29,9 +29,11 @@ def main() -> None:
     logger.info(f"Starting docs2db MCP server on {CONFIG.host}:{CONFIG.port}")
     logger.info(f"Transport: {CONFIG.transport}")
     logger.info(f"Database: {CONFIG.db_host}:{CONFIG.db_port}/{CONFIG.db_database}")
-    logger.info(f"RAG settings: threshold={CONFIG.rag_similarity_threshold}, "
-                f"max_chunks={CONFIG.rag_max_chunks}, "
-                f"reranking={CONFIG.rag_enable_reranking}")
+    logger.info(
+        f"RAG settings: threshold={CONFIG.rag_similarity_threshold}, "
+        f"max_chunks={CONFIG.rag_max_chunks}, "
+        f"reranking={CONFIG.rag_enable_reranking}"
+    )
 
     # Perform startup health check
     try:

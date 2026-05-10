@@ -23,7 +23,7 @@ class Config(BaseSettings):
         description="Transport type (sse or stdio)",
     )
     host: str = Field(
-        default="0.0.0.0",
+        default="0.0.0.0",  # noqa: S104 — intentional: server binds to all interfaces
         description="Bind address for SSE transport",
     )
     port: int = Field(
@@ -78,10 +78,7 @@ class Config(BaseSettings):
     @property
     def database_url(self) -> str:
         """Construct PostgreSQL connection URL."""
-        return (
-            f"postgresql://{self.db_user}:{self.db_password}"
-            f"@{self.db_host}:{self.db_port}/{self.db_database}"
-        )
+        return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_database}"
 
 
 # Global config instance

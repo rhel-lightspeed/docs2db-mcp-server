@@ -1,7 +1,6 @@
 """RAG engine singleton wrapper."""
 
 import logging
-from typing import Optional
 
 from docs2db_api.rag.engine import RAGConfig, UniversalRAGEngine
 
@@ -9,7 +8,7 @@ from docs2db_mcp.config import CONFIG
 
 logger = logging.getLogger(__name__)
 
-_engine: Optional[UniversalRAGEngine] = None
+_engine: UniversalRAGEngine | None = None
 
 
 async def get_engine() -> UniversalRAGEngine:

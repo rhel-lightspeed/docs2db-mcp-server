@@ -58,13 +58,14 @@ async def main() -> None:
                 print(f"    Similarity: {doc['similarity_score']:.3f}")
                 print(f"    Source: {doc['document_path']}")
                 print(f"    Text: {doc['text'][:200]}...")
-                if doc.get('metadata', {}).get('headings'):
+                if doc.get("metadata", {}).get("headings"):
                     print(f"    Headings: {', '.join(doc['metadata']['headings'])}")
                 print()
 
         except Exception as e:
             print(f"❌ Error: {e}")
             import traceback
+
             traceback.print_exc()
 
     print("=" * 80)
