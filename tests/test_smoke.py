@@ -23,7 +23,8 @@ class TestImports:
         assert mcp is not None
 
     def test_config_module(self):
-        from docs2db_mcp.config import CONFIG, Config
+        from docs2db_mcp.config import CONFIG
+        from docs2db_mcp.config import Config
 
         assert Config is not None
         assert CONFIG is not None

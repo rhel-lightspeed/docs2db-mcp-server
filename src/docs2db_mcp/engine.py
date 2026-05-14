@@ -2,9 +2,11 @@
 
 import logging
 
-from docs2db_api.rag.engine import RAGConfig, UniversalRAGEngine
+from docs2db_api.rag.engine import RAGConfig
+from docs2db_api.rag.engine import UniversalRAGEngine
 
 from docs2db_mcp.config import CONFIG
+
 
 logger = logging.getLogger(__name__)
 

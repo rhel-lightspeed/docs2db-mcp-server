@@ -5,8 +5,10 @@ import logging
 import sys
 
 from docs2db_mcp.config import CONFIG
-from docs2db_mcp.engine import health_check, shutdown_engine
+from docs2db_mcp.engine import health_check
+from docs2db_mcp.engine import shutdown_engine
 from docs2db_mcp.server import mcp
+
 
 # Configure logging
 logging.basicConfig(
