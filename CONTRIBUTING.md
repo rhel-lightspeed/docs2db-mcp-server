@@ -121,7 +121,7 @@ git checkout -b feature/your-feature-name
 
 Write clear commit messages using conventional commit style:
 
-```
+```text
 feat: add keyword search tool
 
 - Implement BM25-based keyword search endpoint
@@ -137,7 +137,7 @@ feat: add keyword search tool
 
 ## Project Structure
 
-```
+```text
 docs2db-mcp-server/
 ├── src/docs2db_mcp/       # Main package
 │   ├── __init__.py
