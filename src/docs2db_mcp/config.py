@@ -1,6 +1,7 @@
 """Configuration management for docs2db MCP server."""
 
 from typing import Literal
+from urllib.parse import quote_plus
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -81,7 +82,9 @@ class Config(BaseSettings):
     @property
     def database_url(self) -> str:
         """Construct PostgreSQL connection URL."""
-        return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_database}"
+        user = quote_plus(self.db_user)
+        password = quote_plus(self.db_password)
+        return f"postgresql://{user}:{password}@{self.db_host}:{self.db_port}/{self.db_database}"
 
 
 # Global config instance

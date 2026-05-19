@@ -36,13 +36,13 @@ def sample_documents():
 
 @pytest.fixture
 def mock_rag_result(sample_documents):
-    result = MagicMock()
+    result = MagicMock(spec_set=["documents"])
     result.documents = sample_documents
     return result
 
 
 @pytest.fixture
 def mock_engine(mock_rag_result):
-    engine = MagicMock()
+    engine = MagicMock(spec_set=["search_documents"])
     engine.search_documents = AsyncMock(return_value=mock_rag_result)
     return engine

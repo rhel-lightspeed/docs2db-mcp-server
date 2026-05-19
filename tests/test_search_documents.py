@@ -92,7 +92,7 @@ class TestSearchDocumentsSuccess:
             result = await search_documents.fn(query="RHEL documentation")
 
         assert result["num_results"] == len(sample_documents)
-        for chunk, doc in zip(result["chunks"], sample_documents):
+        for chunk, doc in zip(result["chunks"], sample_documents, strict=True):
             assert chunk["text"] == doc["text"]
 
 
@@ -163,11 +163,9 @@ class TestSearchDocumentsErrorHandling:
         assert result["query_used"] == original_query
 
     async def test_timeout_error_handled_gracefully(self):
-        import asyncio
-
         from docs2db_mcp.tools.search_documents import search_documents
 
-        mock_get_engine = AsyncMock(side_effect=asyncio.TimeoutError())
+        mock_get_engine = AsyncMock(side_effect=TimeoutError())
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
             result = await search_documents.fn(query="slow query")
 
