@@ -38,6 +38,10 @@ class Config(BaseSettings):
         default="INFO",
         description="Logging level (DEBUG, INFO, WARNING, ERROR)",
     )
+    show_banner: bool = Field(
+        default=True,
+        description="Show FastMCP banner on startup. Must be False for stdio transport since stdout is reserved for MCP protocol.",
+    )
 
     # Database Settings
     db_host: str = Field(
@@ -85,6 +89,16 @@ class Config(BaseSettings):
         user = quote_plus(self.db_user)
         password = quote_plus(self.db_password)
         return f"postgresql://{user}:{password}@{self.db_host}:{self.db_port}/{self.db_database}"
+
+    @property
+    def transport_kwargs(self) -> dict:
+        """Return transport-specific keyword arguments for mcp.run()."""
+        kwargs = {}
+        if self.transport == "sse":
+            kwargs["host"] = self.host
+            kwargs["port"] = self.port
+        kwargs["show_banner"] = self.show_banner and self.transport != "stdio"
+        return kwargs
 
 
 # Global config instance
