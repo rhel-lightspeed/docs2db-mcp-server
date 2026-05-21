@@ -9,6 +9,7 @@ import asyncio
 import os
 import sys
 
+
 # Add src to path for local development
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
@@ -58,13 +59,14 @@ async def main() -> None:
                 print(f"    Similarity: {doc['similarity_score']:.3f}")
                 print(f"    Source: {doc['document_path']}")
                 print(f"    Text: {doc['text'][:200]}...")
-                if doc.get('metadata', {}).get('headings'):
+                if doc.get("metadata", {}).get("headings"):
                     print(f"    Headings: {', '.join(doc['metadata']['headings'])}")
                 print()
 
         except Exception as e:
             print(f"❌ Error: {e}")
             import traceback
+
             traceback.print_exc()
 
     print("=" * 80)

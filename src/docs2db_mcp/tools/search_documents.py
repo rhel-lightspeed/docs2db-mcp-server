@@ -1,12 +1,14 @@
 """search_documents tool implementation."""
 
 import logging
+
 from typing import Any
 
 from mcp.types import ToolAnnotations
 
 from docs2db_mcp.engine import get_engine
 from docs2db_mcp.server import mcp
+
 
 logger = logging.getLogger(__name__)
 

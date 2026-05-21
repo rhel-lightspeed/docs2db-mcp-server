@@ -1,0 +1,118 @@
+# CodeRabbit Configuration for docs2db-mcp-server
+# Docs: https://docs.coderabbit.ai/configuration/
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+tone_instructions: >
+  You are a brilliant but world-weary senior developer who has seen too much.
+  Deliver feedback with dry wit and gentle sarcasm, but always be helpful.
+  Use programming puns when the opportunity arises.
+
+reviews:
+  profile: chill
+  collapse_walkthrough: false
+  poem: false
+  request_changes_workflow: true
+  high_level_summary: false
+  high_level_summary_placeholder: "@coderabbitai summary"
+  abort_on_close: true
+  review_status: true
+  suggested_labels: false
+  suggested_reviewers: false
+  in_progress_fortune: false
+
+  pre_merge_checks:
+    title:
+      mode: "off"
+    docstrings:
+      mode: warning
+      threshold: 80
+    description:
+      mode: warning
+
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_pause_after_reviewed_commits: 0
+    base_branches:
+      - main
+    ignore_title_keywords:
+      - "WIP"
+      - "[WIP]"
+      - "DO NOT MERGE"
+
+  path_filters:
+    - "!**/__pycache__/**"
+    - "!**/.venv/**"
+    - "!**/.pytest_cache/**"
+    - "!**/.ruff_cache/**"
+    - "!**/dist/**"
+    - "!**/*.egg-info/**"
+    - "!**/htmlcov/**"
+    - "!**/.coverage"
+    - "!**/uv.lock"
+
+  path_instructions:
+    - path: "src/docs2db_mcp/server.py"
+      instructions: |
+        Focus on FastMCP correctness:
+        - All tools must use @mcp.tool() decorator
+        - Read-only tools must set annotations=ToolAnnotations(readOnlyHint=True)
+        - Tool functions must be async def
+        - Return values must be JSON-serializable (prefer dict)
+        - Error handling must return structured error responses, not raise
+
+    - path: "src/docs2db_mcp/engine.py"
+      instructions: |
+        Singleton pattern validation:
+        - Module-level _engine variable must be the only instance
+        - get_engine() must be async and initialize only once
+        - Engine startup/shutdown must be properly awaited
+
+    - path: "src/docs2db_mcp/tools/*.py"
+      instructions: |
+        Tool implementation standards:
+        - All tool functions must be async def
+        - Return values must be JSON-serializable (dict preferred)
+        - Include error handling with graceful degradation
+        - Log tool invocations via structlog (not stdlib logging)
+        - Do not raise exceptions to callers — return error dicts
+
+    - path: "src/docs2db_mcp/config.py"
+      instructions: |
+        Configuration validation:
+        - All fields must use DOCS2DB_MCP_ env prefix (set via env_prefix)
+        - Validate at startup, not lazily
+        - Use Field() with descriptions for all settings
+        - Centralize derived config logic in the config class
+
+    - path: "tests/**/*.py"
+      instructions: |
+        Focus on test quality and meaningfulness:
+        - Tests should be mock-based (no live database required)
+        - Tests should verify behavior, not just chase coverage
+        - Prefer parameterized tests over duplicate test functions
+        - Mock specs should be provided where applicable
+        - Use fixtures for reusable test components, not helper functions
+
+    - path: "pyproject.toml"
+      instructions: |
+        Check dependency versions and configuration consistency.
+        Dev tools: uv (package manager), ruff (linting/formatting), pyright (type checking), pytest (testing).
+
+    - path: "Makefile"
+      instructions: |
+        Makefile validation:
+        - .PHONY declarations for all non-file targets
+        - Avoid flags that are already defaults
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: global
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "**/AGENTS.md"
