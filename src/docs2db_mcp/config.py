@@ -40,7 +40,10 @@ class Config(BaseSettings):
     )
     show_banner: bool = Field(
         default=True,
-        description="Show FastMCP banner on startup. Must be False for stdio transport since stdout is reserved for MCP protocol.",
+        description=(
+            "Show FastMCP banner on startup."
+            " Must be False for stdio transport since stdout is reserved for MCP protocol."
+        ),
     )
 
     # Database Settings
