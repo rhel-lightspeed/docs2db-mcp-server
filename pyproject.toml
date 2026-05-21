@@ -70,6 +70,7 @@ venv = ".venv"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+addopts = "--cov=docs2db_mcp --cov-report=term-missing"
 markers = [
     "no_ci: tests requiring external services (excluded from make test-ci)",
 ]

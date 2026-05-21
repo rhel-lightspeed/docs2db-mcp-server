@@ -24,10 +24,10 @@ jobs:
       - run: uv sync
 
       - name: Ruff check
-        run: uv run ruff check src/
+        run: uv run ruff check src/ tests/ demos/
 
       - name: Ruff format check
-        run: uv run ruff format --check src/
+        run: uv run ruff format --check src/ tests/ demos/
 
       - name: Pyright
         run: uv run pyright src/docs2db_mcp/

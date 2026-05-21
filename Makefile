@@ -7,7 +7,7 @@ test-ci:
 	uv run pytest -m "not no_ci"
 
 lint:
-	uv run ruff check src/ tests/ demos/
+	uv run ruff check --fix src/ tests/ demos/
 
 format:
 	uv run ruff format src/ tests/ demos/

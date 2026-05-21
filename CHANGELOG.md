@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- CI workflow: extended ruff check and format to cover `src/`, `tests/`, and `demos/`
+- Makefile: `lint` target now runs `ruff check --fix` (was `ruff check`)
+- pytest: added `--cov=docs2db_mcp --cov-report=term-missing` to default options
 - Type checker: mypy → pyright (`uv run pyright src/docs2db_mcp/`)
 - Dev dependencies: moved from `[project.optional-dependencies]` to `[dependency-groups]`
 - `requires-python` tightened from `>=3.12` to `>=3.12,<3.14`
