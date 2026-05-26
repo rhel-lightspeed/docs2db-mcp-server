@@ -31,8 +31,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastmcp >=2.14.4, <3",
-    "mcp >=1.27.1",
+    "fastmcp >=3.3.1, <4",
     "docs2db-api",
     "pydantic >=2.13.4",
     "pydantic-settings >=2.14.1",
