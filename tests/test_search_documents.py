@@ -8,7 +8,7 @@ class TestSearchDocumentsSuccess:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="RHEL 9 security features")
+            result = await search_documents(query="RHEL 9 security features")
 
         assert "chunks" in result
         assert "query_used" in result
@@ -21,7 +21,7 @@ class TestSearchDocumentsSuccess:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="RHEL packages")
+            result = await search_documents(query="RHEL packages")
 
         assert result["num_results"] > 0
         chunk = result["chunks"][0]
@@ -35,7 +35,7 @@ class TestSearchDocumentsSuccess:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="RHEL security")
+            result = await search_documents(query="RHEL security")
 
         first_chunk = result["chunks"][0]
         first_doc = sample_documents[0]
@@ -48,7 +48,7 @@ class TestSearchDocumentsSuccess:
 
         mock_get_engine = AsyncMock(return_value=mock_engine)
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            await search_documents.fn(
+            await search_documents(
                 query="test query",
                 max_chunks=10,
                 similarity_threshold=0.8,
@@ -67,7 +67,7 @@ class TestSearchDocumentsSuccess:
 
         mock_get_engine = AsyncMock(return_value=mock_engine)
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            await search_documents.fn(query="test")
+            await search_documents(query="test")
 
         mock_engine.search_documents.assert_called_once_with(
             query="test",
@@ -81,7 +81,7 @@ class TestSearchDocumentsSuccess:
 
         original_query = "How to configure firewalld in RHEL?"
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query=original_query)
+            result = await search_documents(query=original_query)
 
         assert result["query_used"] == original_query
 
@@ -89,7 +89,7 @@ class TestSearchDocumentsSuccess:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="RHEL documentation")
+            result = await search_documents(query="RHEL documentation")
 
         assert result["num_results"] == len(sample_documents)
         for chunk, doc in zip(result["chunks"], sample_documents, strict=True):
@@ -106,7 +106,7 @@ class TestSearchDocumentsEmptyResults:
         mock_engine.search_documents = AsyncMock(return_value=empty_result)
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="nonexistent topic")
+            result = await search_documents(query="nonexistent topic")
 
         assert result["chunks"] == []
         assert result["num_results"] == 0
@@ -122,7 +122,7 @@ class TestSearchDocumentsEmptyResults:
 
         query = "obscure topic that returns nothing"
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query=query)
+            result = await search_documents(query=query)
 
         assert result["query_used"] == query
 
@@ -133,7 +133,7 @@ class TestSearchDocumentsErrorHandling:
 
         mock_get_engine = AsyncMock(side_effect=ConnectionError("Database unreachable"))
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            result = await search_documents.fn(query="test query")
+            result = await search_documents(query="test query")
 
         assert "error" in result
         assert result["chunks"] == []
@@ -145,7 +145,7 @@ class TestSearchDocumentsErrorHandling:
 
         mock_engine.search_documents = AsyncMock(side_effect=RuntimeError("Search failed"))
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="test query")
+            result = await search_documents(query="test query")
 
         assert "error" in result
         assert result["chunks"] == []
@@ -158,7 +158,7 @@ class TestSearchDocumentsErrorHandling:
         mock_get_engine = AsyncMock(side_effect=Exception("Unexpected error"))
         original_query = "RHEL 10 features"
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            result = await search_documents.fn(query=original_query)
+            result = await search_documents(query=original_query)
 
         assert result["query_used"] == original_query
 
@@ -167,7 +167,7 @@ class TestSearchDocumentsErrorHandling:
 
         mock_get_engine = AsyncMock(side_effect=TimeoutError())
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            result = await search_documents.fn(query="slow query")
+            result = await search_documents(query="slow query")
 
         assert "error" in result
         assert result["chunks"] == []
@@ -178,7 +178,7 @@ class TestSearchDocumentsErrorHandling:
 
         mock_get_engine = AsyncMock(side_effect=Exception("Something went wrong"))
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
-            result = await search_documents.fn(query="test")
+            result = await search_documents(query="test")
 
         assert "error" in result
         assert "Something went wrong" in result["error"]
@@ -199,7 +199,7 @@ class TestSearchDocumentsFieldMapping:
         mock_engine.search_documents = AsyncMock(return_value=mock_result)
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="minimal test")
+            result = await search_documents(query="minimal test")
 
         chunk = result["chunks"][0]
         assert chunk["text"] == "Minimal document chunk"
@@ -212,7 +212,7 @@ class TestSearchDocumentsFieldMapping:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="test")
+            result = await search_documents(query="test")
 
         for chunk in result["chunks"]:
             assert isinstance(chunk["similarity"], float)
@@ -221,7 +221,7 @@ class TestSearchDocumentsFieldMapping:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="test")
+            result = await search_documents(query="test")
 
         assert result["chunks"][0]["rerank_score"] == sample_documents[0]["rerank_score"]
 
@@ -229,6 +229,6 @@ class TestSearchDocumentsFieldMapping:
         from docs2db_mcp.tools.search_documents import search_documents
 
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
-            result = await search_documents.fn(query="test")
+            result = await search_documents(query="test")
 
         assert result["chunks"][0]["vector_similarity"] == sample_documents[0]["vector_similarity"]

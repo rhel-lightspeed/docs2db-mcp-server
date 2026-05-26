@@ -45,17 +45,15 @@ class TestImports:
         assert asyncio.iscoroutinefunction(shutdown_engine)
 
     def test_search_documents_tool_exists(self):
-        from fastmcp.tools.tool import FunctionTool
-
         from docs2db_mcp.tools import search_documents
 
-        assert isinstance(search_documents, FunctionTool)
-        assert search_documents.name == "search_documents"
+        assert callable(search_documents)
+        assert search_documents.__name__ == "search_documents"
 
     def test_search_documents_fn_is_async(self):
         from docs2db_mcp.tools import search_documents
 
-        assert asyncio.iscoroutinefunction(search_documents.fn)
+        assert asyncio.iscoroutinefunction(search_documents)
 
 
 class TestConfigDefaults:
@@ -143,10 +141,8 @@ class TestMCPServer:
         assert mcp is not None
 
     def test_search_documents_registered(self):
-        from fastmcp.tools.tool import FunctionTool
-
         from docs2db_mcp.tools import search_documents
 
-        assert isinstance(search_documents, FunctionTool)
-        assert search_documents.name == "search_documents"
-        assert search_documents.enabled
+        assert callable(search_documents)
+        assert search_documents.__name__ == "search_documents"
+        assert asyncio.iscoroutinefunction(search_documents)
