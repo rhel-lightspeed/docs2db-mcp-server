@@ -105,6 +105,3 @@ force-single-line = true
 lines-after-imports = 2
 lines-between-types = 1
 order-by-type = false
-
-
-

@@ -1,11 +1,20 @@
-"""RAG engine singleton wrapper."""
+"""RAG engine singleton wrapper.
+
+Heavy dependencies (torch, transformers, docs2db-api) are imported lazily
+inside ``get_engine()`` so that importing this module is near-instant.
+"""
+
+from __future__ import annotations
 
 import logging
 
-from docs2db_api.rag.engine import RAGConfig
-from docs2db_api.rag.engine import UniversalRAGEngine
+from typing import TYPE_CHECKING
 
 from docs2db_mcp.config import CONFIG
+
+
+if TYPE_CHECKING:
+    from docs2db_api.rag.engine import UniversalRAGEngine
 
 
 logger = logging.getLogger(__name__)
@@ -16,6 +25,10 @@ _engine: UniversalRAGEngine | None = None
 async def get_engine() -> UniversalRAGEngine:
     """Get or create the singleton RAG engine instance.
 
+    On first call this imports ``docs2db-api`` (which pulls in torch,
+    transformers, etc.) and initialises the engine.  Subsequent calls
+    return the cached instance.
+
     Returns:
         Initialized UniversalRAGEngine instance
 
@@ -25,6 +38,9 @@ async def get_engine() -> UniversalRAGEngine:
     global _engine
 
     if _engine is None:
+        from docs2db_api.rag.engine import RAGConfig
+        from docs2db_api.rag.engine import UniversalRAGEngine
+
         logger.info("Initializing UniversalRAGEngine")
 
         # Configure database connection (dict format)
@@ -53,7 +69,7 @@ async def get_engine() -> UniversalRAGEngine:
             await _engine.start()
             logger.info("UniversalRAGEngine initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize RAG engine: {e}")
+            logger.error("Failed to initialize RAG engine: %s", e)
             _engine = None
             raise
 
@@ -95,11 +111,12 @@ async def health_check() -> None:
 
         # Verify we got a valid response
         if result is None:
-            raise Exception("Health check query returned None")
+            msg = "Health check query returned None"
+            raise Exception(msg)
 
-        logger.info(f"Test query successful (returned {len(result.documents)} documents)")
+        logger.info("Test query successful (returned %d documents)", len(result.documents))
         logger.info("Health check passed - system is ready")
 
     except Exception as e:
-        logger.error(f"Health check failed: {e}", exc_info=True)
+        logger.error("Health check failed: %s", e, exc_info=True)
         raise Exception(f"Startup health check failed - cannot connect to database or perform queries: {e}") from e
