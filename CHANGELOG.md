@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Deferred heavy `docs2db-api` imports (torch, transformers) in `engine.py` to reduce module load time
+- Migrated startup health check and engine shutdown to FastMCP lifespan hook for proper async lifecycle management
+- Simplified `__main__.py` — removed manual `asyncio.run()` calls for health check and cleanup
 - Upgraded fastmcp from 2.x to 3.x (`>=3.3.1, <4`)
 - Removed standalone `mcp` dependency (pulled in transitively by fastmcp 3.x)
 - Updated smoke tests to match FastMCP 3.x decorator behavior (`@mcp.tool` now returns the original function)
