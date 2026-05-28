@@ -1,10 +1,11 @@
 """FastMCP server instance and initialization."""
 
-import logging
 import sys
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+
+import structlog
 
 from fastmcp import FastMCP
 
@@ -13,7 +14,7 @@ from docs2db_mcp.engine import health_check
 from docs2db_mcp.engine import shutdown_engine
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
