@@ -1,8 +1,8 @@
 """search_documents tool implementation."""
 
-import logging
-
 from typing import Any
+
+import structlog
 
 from mcp.types import ToolAnnotations
 
@@ -10,7 +10,7 @@ from docs2db_mcp.engine import get_engine
 from docs2db_mcp.server import mcp
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @mcp.tool(
@@ -46,7 +46,7 @@ async def search_documents(
         - query_used: The original query (refinement disabled)
         - num_results: Number of results returned
     """
-    logger.info(f"Searching for: {query!r} (max_chunks={max_chunks})")
+    logger.info("Searching", query_length=len(query), max_chunks=max_chunks)
 
     try:
         engine = await get_engine()
@@ -73,7 +73,7 @@ async def search_documents(
             for doc in result.documents
         ]
 
-        logger.info(f"Found {len(chunks)} results")
+        logger.info("Search complete", num_results=len(chunks))
 
         return {
             "chunks": chunks,
@@ -82,7 +82,7 @@ async def search_documents(
         }
 
     except Exception as e:
-        logger.error(f"Search failed: {e}", exc_info=True)
+        logger.error("Search failed", error=str(e), exc_info=True)
         return {
             "chunks": [],
             "query_used": query,

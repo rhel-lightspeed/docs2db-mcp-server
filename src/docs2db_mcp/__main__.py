@@ -4,12 +4,13 @@ import logging
 import os
 import sys
 
+import structlog
+
 
 # Must read transport before importing modules that configure logging
 transport = os.environ.get("DOCS2DB_MCP_TRANSPORT", "sse")
 
 if transport == "sse":
-    # stdout not used by MCP protocol, logging can go there
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -17,7 +18,6 @@ if transport == "sse":
     )
 else:
     # stdout is reserved for MCP protocol, must redirect all logging to stderr
-    # set CRITICAL level before importing docs2db-api to minimize startup logs
     os.environ.setdefault("DOCS2DB_LOG_LEVEL", "CRITICAL")
     logging.basicConfig(
         level=logging.INFO,
@@ -30,19 +30,20 @@ from docs2db_mcp.config import CONFIG  # noqa: E402
 from docs2db_mcp.server import mcp  # noqa: E402
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def main() -> None:
     """Run the MCP server."""
-    logger.info("Starting docs2db MCP server on %s:%s", CONFIG.host, CONFIG.port)
-    logger.info("Transport: %s", CONFIG.transport)
-    logger.info("Database: %s:%s/%s", CONFIG.db_host, CONFIG.db_port, CONFIG.db_database)
     logger.info(
-        "RAG settings: threshold=%s, max_chunks=%s, reranking=%s",
-        CONFIG.rag_similarity_threshold,
-        CONFIG.rag_max_chunks,
-        CONFIG.rag_enable_reranking,
+        "Starting docs2db MCP server",
+        host=CONFIG.host,
+        port=CONFIG.port,
+        transport=CONFIG.transport,
+        database=f"{CONFIG.db_host}:{CONFIG.db_port}/{CONFIG.db_database}",
+        rag_threshold=CONFIG.rag_similarity_threshold,
+        rag_max_chunks=CONFIG.rag_max_chunks,
+        rag_reranking=CONFIG.rag_enable_reranking,
     )
 
     try:
@@ -50,7 +51,7 @@ def main() -> None:
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt")
     except Exception as e:
-        logger.error("Server error: %s", e, exc_info=True)
+        logger.error("Server error", error=str(e), exc_info=True)
         sys.exit(1)
 
 
