@@ -31,7 +31,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastmcp >=3.3.1, <4",
+    "fastmcp >=3.4.0, <4",
     "docs2db-api",
     "pydantic >=2.13.4",
     "pydantic-settings >=2.14.1",
@@ -47,12 +47,12 @@ Changelog = "https://github.com/rhel-lightspeed/docs2db-mcp-server/blob/main/CHA
 [dependency-groups]
 dev = [
     "pre-commit>=4.6.0",
-    "pyright>=1.1.409",
+    "pyright>=1.1.410",
     "pytest>=9.0.3",
-    "pytest-asyncio>=1.3.0",
+    "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-randomly>=4.1.0",
-    "ruff>=0.15.14",
+    "ruff>=0.15.15",
 ]
 
 [build-system]
