@@ -29,7 +29,7 @@ brew install uv
 ### From PyPI
 
 ```bash
-uv add docs2db-mcp-server
+uv add docs2db-mcp
 ```
 
 ### From Source
