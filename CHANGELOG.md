@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Validate `max_chunks`, `similarity_threshold`, and `query` length on each tool call to prevent resource exhaustion (RSPEED-3383)
+
 ### Added
 
 - GitHub Actions CI workflow (lint + test jobs, no postgres service)
