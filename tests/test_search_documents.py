@@ -2,6 +2,136 @@ from unittest.mock import AsyncMock
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from docs2db_mcp.config import CONFIG
+from docs2db_mcp.tools.search_documents import _MAX_QUERY_LENGTH
+
+
+class TestSearchDocumentsInputValidation:
+    """Tests for per-request parameter bounds validation (RSPEED-3383).
+
+    Validates that the tool returns the documented JSON error dictionary
+    for out-of-bounds max_chunks, similarity_threshold, and query length
+    without dispatching to the RAG engine (CWE-770, CWE-20).
+    """
+
+    # -- max_chunks rejection ---------------------------------------------------
+
+    async def test_max_chunks_above_config_limit_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="test", max_chunks=CONFIG.rag_max_chunks + 1)
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "max_chunks" in result["error"]
+
+    async def test_max_chunks_zero_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="test", max_chunks=0)
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "max_chunks" in result["error"]
+
+    async def test_max_chunks_negative_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="test", max_chunks=-5)
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "max_chunks" in result["error"]
+
+    # -- similarity_threshold rejection -----------------------------------------
+
+    async def test_similarity_threshold_above_one_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="test", similarity_threshold=1.5)
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "similarity_threshold" in result["error"]
+
+    async def test_similarity_threshold_negative_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="test", similarity_threshold=-0.1)
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "similarity_threshold" in result["error"]
+
+    # -- query length rejection -------------------------------------------------
+
+    async def test_empty_query_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="")
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "query" in result["error"]
+
+    async def test_query_exceeding_max_length_returns_error(self):
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        result = await search_documents(query="x" * (_MAX_QUERY_LENGTH + 1))
+        assert result["chunks"] == []
+        assert result["num_results"] == 0
+        assert "query" in result["error"]
+
+    # -- accepted boundary values -----------------------------------------------
+
+    async def test_valid_boundary_max_chunks_upper(self, mock_engine):
+        """max_chunks == CONFIG.rag_max_chunks (upper bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="RHEL 9", max_chunks=CONFIG.rag_max_chunks)
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
+    async def test_valid_boundary_max_chunks_lower(self, mock_engine):
+        """max_chunks == 1 (lower bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="RHEL 9", max_chunks=1)
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
+    async def test_valid_boundary_threshold_zero(self, mock_engine):
+        """similarity_threshold == 0.0 (lower bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="RHEL 9", similarity_threshold=0.0)
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
+    async def test_valid_boundary_threshold_one(self, mock_engine):
+        """similarity_threshold == 1.0 (upper bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="RHEL 9", similarity_threshold=1.0)
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
+    async def test_valid_boundary_query_min_length(self, mock_engine):
+        """Single-character query (lower bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="x")
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
+    async def test_valid_boundary_query_max_length(self, mock_engine):
+        """Query at exactly _MAX_QUERY_LENGTH (upper bound) must reach the engine."""
+        from docs2db_mcp.tools.search_documents import search_documents
+
+        with patch("docs2db_mcp.tools.search_documents.get_engine", new=AsyncMock(return_value=mock_engine)):
+            result = await search_documents(query="x" * _MAX_QUERY_LENGTH)
+        assert "error" not in result
+        mock_engine.search_documents.assert_awaited_once()
+
 
 class TestSearchDocumentsSuccess:
     async def test_valid_query_returns_chunks(self, mock_engine, sample_documents):
@@ -50,14 +180,14 @@ class TestSearchDocumentsSuccess:
         with patch("docs2db_mcp.tools.search_documents.get_engine", new=mock_get_engine):
             await search_documents(
                 query="test query",
-                max_chunks=10,
+                max_chunks=3,
                 similarity_threshold=0.8,
                 enable_reranking=False,
             )
 
         mock_engine.search_documents.assert_called_once_with(
             query="test query",
-            max_chunks=10,
+            max_chunks=3,
             similarity_threshold=0.8,
             enable_reranking=False,
         )
