@@ -268,7 +268,8 @@ class TestSearchDocumentsErrorHandling:
         assert "error" in result
         assert result["chunks"] == []
         assert result["num_results"] == 0
-        assert "Database unreachable" in result["error"]
+        assert result["error"] == "internal search error"
+        assert "Database unreachable" not in result["error"]
 
     async def test_search_error_returns_error_dict(self, mock_engine):
         from docs2db_mcp.tools.search_documents import search_documents
@@ -280,7 +281,7 @@ class TestSearchDocumentsErrorHandling:
         assert "error" in result
         assert result["chunks"] == []
         assert result["num_results"] == 0
-        assert "Search failed" in result["error"]
+        assert result["error"] == "internal search error"
 
     async def test_error_preserves_original_query(self):
         from docs2db_mcp.tools.search_documents import search_documents
@@ -311,7 +312,8 @@ class TestSearchDocumentsErrorHandling:
             result = await search_documents(query="test")
 
         assert "error" in result
-        assert "Something went wrong" in result["error"]
+        assert result["error"] == "internal search error"
+        assert "Something went wrong" not in result["error"]
 
 
 class TestSearchDocumentsFieldMapping:

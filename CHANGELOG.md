@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Sanitize error responses in `search_documents` tool — return generic `"internal search error"` instead of raw exception text that could leak internal infrastructure details (RSPEED-3363)
 - Validate `max_chunks`, `similarity_threshold`, and `query` length on each tool call to prevent resource exhaustion (RSPEED-3383)
 
 ### Added
