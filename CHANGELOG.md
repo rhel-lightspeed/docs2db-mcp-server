@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Version now sourced from `__version__` in `__init__.py` via hatch dynamic versioning — eliminates dual-maintenance with `pyproject.toml`
+- Renamed distribution package from `docs2db-mcp-server` to `docs2db-mcp` to match import name `docs2db_mcp`
 - Deferred heavy `docs2db-api` imports (torch, transformers) in `engine.py` to reduce module load time (RSPEED-3047)
 - Migrated startup health check and engine shutdown to FastMCP lifespan hook for proper async lifecycle management (RSPEED-3047)
 - Simplified `__main__.py` — removed manual `asyncio.run()` calls for health check and cleanup (RSPEED-3047)

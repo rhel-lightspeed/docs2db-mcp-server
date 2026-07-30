@@ -1,4 +1,4 @@
-"""Pytest fixtures and configuration for docs2db-mcp-server tests."""
+"""Pytest fixtures and configuration for docs2db-mcp tests."""
 
 from unittest.mock import AsyncMock
 from unittest.mock import MagicMock

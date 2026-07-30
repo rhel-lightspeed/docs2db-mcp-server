@@ -8,9 +8,13 @@ class TestImports:
         assert docs2db_mcp is not None
 
     def test_version_defined(self):
+        from importlib.metadata import version
+
         import docs2db_mcp
 
-        assert docs2db_mcp.__version__ == "0.1.0"
+        assert docs2db_mcp.__version__
+        assert isinstance(docs2db_mcp.__version__, str)
+        assert docs2db_mcp.__version__ == version("docs2db-mcp")
 
     def test_server_module(self):
         from docs2db_mcp import server
