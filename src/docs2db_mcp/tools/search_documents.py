@@ -129,5 +129,5 @@ async def search_documents(
             "chunks": [],
             "query_used": query,
             "num_results": 0,
-            "error": str(e),
+            "error": "internal search error",
         }
